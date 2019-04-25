@@ -8,35 +8,23 @@ import snowflake.connector as connector
 DAYLOAD = 1
 
 CSV_COLUMNS = ['DATE', 'organization_id', 'shareCount', 'uniqueImpressionsCount', 'clickCount', 'engagement',
-               'likeCount', 'impressionCount', 'commentCount'
+               'likeCount', 'impressionCount', 'commentCount', 'paidFollowerGain', 'organicFollowerGain'
                ]
 
 
-RAW_DB_COLUMNS = \
+RAW_DB_COLUMNS1 = \
     """
-    DATE date, 
-    campaign_name string,
-    campaign_id string,
-    bid float,
-    bid_currency string,
-    status string,
-    costType string,
-    type string,
-    objectiveType string,
-    optimizationTargetType string,
-    costInLocalCurrency float, 
-    shares integer, 
-    pivot string, 
-    likes integer, 
-    comments integer,
-    costInUsd float, 
-    follows integer, 
-    conversionValueInLocalCurrency string, 
-    impressions integer, 
-    opens integer, 
+    DATE date,     
+    organization_id string, 
+    shareCount integer, 
+    uniqueImpressions integer, 
     clicks integer, 
-    totalEngagements integer,
-    share_urn string
+    engagement float,
+    likes integer, 
+    impressions integer, 
+    comments integer,
+    paidFollowerGain integer,
+    organicFollowerGain integer
     """
 
 

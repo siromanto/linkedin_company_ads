@@ -44,6 +44,7 @@ def parse_date_to_timestump(str_date):
     utc_time = t.replace(tzinfo=pytz.utc)
     return int(utc_time.timestamp() * 1000)  # timestamp is in milliseconds
 
+
 def parse_timestump_to_date(ts):
     clear_ts = ts / 1000
     return datetime.utcfromtimestamp(clear_ts).strftime('%Y-%m-%d')
@@ -55,29 +56,31 @@ def extract_data(start_date='2018-04-01', end_date=(date.today() - timedelta(1))
     end_date_timestump = parse_date_to_timestump(end_date)
     daily_data = get_data_from_response(COMPANY_URN, start_date_timestump, end_date_timestump)
 
+    follower_data = get_data_from_response1(COMPANY_URN, start_date_timestump, end_date_timestump)
+
     print('DATA COLUMNS --- {}'.format(len(daily_data)))
 
     with open(config.DATA_PATH, mode='w', encoding='utf8') as raw_csv:
         writer = helpers.prepare_header_for_clear_csv(raw_csv, helpers.CSV_COLUMNS)
 
-        for item in daily_data:
+        for item, follow in zip(daily_data, follower_data):
             row = {}
             row.update({
                 'DATE': parse_timestump_to_date(item['timeRange']['start']),
                 'organization_id': item.get('organizationalEntity'),
-                'shareCount': item['totalShareStatistics'].get('shareCount'),
-                'uniqueImpressionsCount': item['totalShareStatistics'].get('uniqueImpressionsCount'),
-                'clickCount': item['totalShareStatistics'].get('clickCount'),
-                'engagement': item['totalShareStatistics'].get('engagement'),
-                'likeCount': item['totalShareStatistics'].get('likeCount'),
-                'impressionCount': item['totalShareStatistics'].get('impressionCount'),
-                'commentCount': item['totalShareStatistics'].get('commentCount')
+                'shareCount': item['totalShareStatistics'].get('shareCount', 0),
+                'uniqueImpressionsCount': item['totalShareStatistics'].get('uniqueImpressionsCount', 0),
+                'clickCount': item['totalShareStatistics'].get('clickCount', 0),
+                'engagement': item['totalShareStatistics'].get('engagement', 0),
+                'likeCount': item['totalShareStatistics'].get('likeCount', 0),
+                'impressionCount': item['totalShareStatistics'].get('impressionCount', 0),
+                'commentCount': item['totalShareStatistics'].get('commentCount', 0),
+                'paidFollowerGain': follow["followerGains"].get('paidFollowerGain'),
+                'organicFollowerGain': follow["followerGains"].get('organicFollowerGain')
             })
 
             writer.writerow(row)
         print('*' * 200)
-
-
 
 
 def get_data_from_response(campaign, start_date_timestump, end_date_timestump):
@@ -91,6 +94,20 @@ def get_data_from_response(campaign, start_date_timestump, end_date_timestump):
     ]
 
     data = api.organizationalEntityShareStatistics(params=join_params_to_uri(uri_params)).get("elements")
+    return data
+
+
+def get_data_from_response1(campaign, start_date_timestump, end_date_timestump):
+    api = prepare_api()
+    uri_params = [
+        {'q': 'organizationalEntity'},
+        {'organizationalEntity': 'urn:li:organization:{}'.format(campaign)},
+        {'timeIntervals.timeGranularityType': 'DAY'},
+        {'timeIntervals.timeRange.start': start_date_timestump},
+        {'timeIntervals.timeRange.end': end_date_timestump}
+    ]
+
+    data = api.organizationalEntityFollowerStatistics(params=join_params_to_uri(uri_params)).get("elements")
     return data
 
 

@@ -35,5 +35,5 @@ def run(table_name, table_columns):
 
 
 if __name__ == '__main__':
-    run(table_name='LINKEDIN_CONSOLE_RAW_DATA', table_columns=helpers.RAW_DB_COLUMNS)
+    run(table_name='LINKEDIN_COMPANY_SHARE_STATISTIC_DATA', table_columns=helpers.RAW_DB_COLUMNS1)
     # run(table_name='TEST_GAAN_V16_TRAFFICBYDAY', table_columns=helpers.V16_DB_COLUMNS)
