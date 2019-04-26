@@ -7,10 +7,40 @@ import snowflake.connector as connector
 
 DAYLOAD = 1
 
-CSV_COLUMNS = ['DATE', 'organization_id', 'shareCount', 'uniqueImpressionsCount', 'clickCount', 'engagement',
+CSV_COLUMNS1 = ['DATE', 'organization_id', 'shareCount', 'uniqueImpressionsCount', 'clickCount', 'engagement',
                'likeCount', 'impressionCount', 'commentCount', 'paidFollowerGain', 'organicFollowerGain'
                ]
 
+
+CSV_COLUMNS2 = ['DATE', 'mobileCustomButtonClickCounts',
+                'careersPageBannerPromoClicks', 'careersPageEmployeesClicks', 'careersPagePromoLinksClicks', 'careersPageJobsClicks',
+                'mobileCareersPageEmployeesClicks', 'mobileCareersPagePromoLinksClicks', 'mobileCareersPageJobsClicks',
+                'desktopCustomButtonClickCounts',
+                'mobileJobsPageViews', 'uniqueMobileJobsPageViews',
+                'careersPageViews', 'uniqueCareersPageViews',
+                'mobileLifeAtPageViews', 'uniqueMobileLifeAtPageViews',
+                'insightsPageViews', 'uniqueInsightsPageViews',
+                'allDesktopPageViews', 'uniqueAllDesktopPageViews',
+                'mobileAboutPageViews', 'uniqueMobileAboutPageViews',
+                'allMobilePageViews', 'uniqueAllMobilePageViews',
+                'desktopJobsPageViews', 'uniqueDesktopJobsPageViews',
+                'jobsPageViews', 'uniqueJobsPageViews',
+                'peoplePageViews', 'uniquePeoplePageViews',
+                'desktopPeoplePageViews', 'uniqueDesktopPeoplePageViews',
+                'aboutPageViews', 'uniqueAboutPageViews',
+                'desktopAboutPageViews', 'uniqueDesktopAboutPageViews',
+                'overviewPageViews', 'uniqueOverviewPageViews',
+                'mobilePeoplePageViews', 'uniqueMobilePeoplePageViews',
+                'desktopInsightsPageViews', 'uniqueDesktopInsightsPageViews',
+                'desktopCareersPageViews', 'uniqueDesktopCareersPageViews',
+                'mobileOverviewPageViews', 'uniqueMobileOverviewPageViews',
+                'lifeAtPageViews', 'uniqueLifeAtPageViews',
+                'desktopOverviewPageViews', 'uniqueDesktopOverviewPageViews',
+                'desktopLifeAtPageViews', 'uniqueDesktopLifeAtPageViews',
+                'mobileCareersPageViews', 'uniqueMobileCareersPageViews',
+                'allPageViews', 'uniqueAllPageViews',
+                'mobileInsightsPageViews', 'uniqueMobileInsightsPageViews'
+                ]
 
 RAW_DB_COLUMNS1 = \
     """
