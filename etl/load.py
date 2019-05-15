@@ -24,6 +24,11 @@ def load_daily(**kwargs):
     load_raw_data_from_csv(report_path)
 
 
+def load_statistics(**kwargs):
+    report_path = config.DATA_PATH2
+    load_raw_data_from_csv(report_path)
+
+
 def load_raw_data_from_csv(file_path):
     file_name = file_path.rsplit('/', 1)[-1]
 
@@ -40,7 +45,8 @@ def load_raw_data_from_csv(file_path):
 
     curr = conn.cursor()
     # table_name = client_config['raw_db_table'] # TODO: Fix this
-    table_name = client_config['raw_db_table1']
+    # table_name = client_config['raw_db_table1']
+    table_name = client_config['raw_db_table2']
 
     storage_path = '@%{}/{}'.format(table_name, file_name)
     try:
@@ -61,4 +67,5 @@ def load_raw_data_from_csv(file_path):
 
 
 if __name__ == '__main__':
-    load_daily()
+    # load_daily()
+    load_statistics()
