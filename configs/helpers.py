@@ -4,15 +4,12 @@ import time
 import csv
 import snowflake.connector as connector
 
-
 DAYLOAD = 1
 
 CSV_COLUMNS1 = ['DATE', 'organization_id', 'shareCount', 'uniqueImpressionsCount', 'clickCount', 'engagement',
-               'likeCount', 'impressionCount', 'commentCount', 'paidFollowerGain', 'organicFollowerGain'
-               ]
+                'likeCount', 'impressionCount', 'commentCount', 'paidFollowerGain', 'organicFollowerGain']
 
-
-CSV_COLUMNS2 = ['DATE',  'mobile_Custom_Button_Click_Counts',
+CSV_COLUMNS2 = ['DATE', 'mobile_Custom_Button_Click_Counts',
                 'careers_Page_Banner_Promo_Clicks', 'careers_Page_Employees_Clicks', 'careers_Page_Promo_Links_Clicks',
                 'careers_Page_Jobs_Clicks', 'mobile_Careers_Page_Employees_Clicks',
                 'mobile_Careers_Page_Promo_Links_Clicks', 'mobile_Careers_Page_Jobs_Clicks',
@@ -232,7 +229,6 @@ def get_client_config(conf_path, client_name=None):
 
 
 def perform_db_routines(sql, client_config, db_config):
-
     conn = establish_db_conn(db_config['user'],
                              db_config['pwd'],
                              db_config['account'],

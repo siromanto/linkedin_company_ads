@@ -1,6 +1,8 @@
 # Development path TODO: Switch to prod path in prod env
-DATA_PATH = '../data/linkedin_raw_data.csv'
-DATA_PATH2 = '../data/linkedin_page_statistics.csv'
+# DATA_PATH = '../data/linkedin_raw_data.csv'
+SHARE_DATA_PATH = '../data/linkedin_raw_data.csv'
+# DATA_PATH2 = '../data/linkedin_page_statistics.csv'
+PAGE_DATA_PATH = '../data/linkedin_page_statistics.csv'
 CLIENT_CONFIG_PATH = r'/Users/siromanto/ralabs/0.projects/conDati/LinkedinCompanyAds/credentials/LinkedinAdsKeys/Linkedin_dev.json'
 DB_CONFIG_PATH = r'/Users/siromanto/ralabs/0.projects/conDati/LinkedinCompanyAds/credentials/SnowflakeKeys/Siromanto_account.json'
 

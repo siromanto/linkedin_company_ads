@@ -8,62 +8,62 @@ from configs import config, helpers
 from linkedin.api import LinkedinAdsApi
 
 COMPANY_URN = '18067731'
+TIME_DELAY = 2
+
 
 def prepare_api():
     credentials = helpers.get_client_config(conf_path=config.CLIENT_CONFIG_PATH)
     access_token = credentials.get("access_token")
     access_headers = {'Authorization': 'Bearer {}'.format(access_token)}
-
     return LinkedinAdsApi(headers=access_headers)
 
 
-def join_params_to_uri(params):
+def join_params_to_uri(params):  # TODO: move into helpers
     return "&".join("".join("{}={}".format(k, v) for k, v in t.items()) for t in params)
 
 
-def per_delta(start, end, delta):
+def per_delta(start, end, delta):  # TODO: move into helpers
     curr = start
-    while curr < end:
+    while curr <= end:
         yield curr
         curr += delta
 
 
-def extract_daily(**kwargs):
-    dates = [s.strftime('%Y-%m-%d') for s in per_delta(
-        date.today() - timedelta(days=helpers.DAYLOAD),
-        date.today(),
-        timedelta(days=1)
-    )]
-    start_date, end_date = dates[0], dates[-1]
-
-    extract_data(start_date, end_date)
-
-
-def parse_date_to_timestump(str_date):
+def parse_date_to_timestump(str_date):  # TODO: move into helpers
     t = datetime.strptime(str_date, '%Y-%m-%d')
     utc_time = t.replace(tzinfo=pytz.utc)
     return int(utc_time.timestamp() * 1000)  # timestamp is in milliseconds
 
 
-def parse_timestump_to_date(ts):
+def parse_timestump_to_date(ts):  # TODO: move into helpers
     clear_ts = ts / 1000
     return datetime.utcfromtimestamp(clear_ts).strftime('%Y-%m-%d')
 
 
-def extract_data(start_date='2018-04-01', end_date=(date.today() - timedelta(1)).strftime('%Y-%m-%d')):  # TODO: Change it to get chunks
+def extract_daily_share_statistic(**kwargs):
+    dates = [s.strftime('%Y-%m-%d') for s in per_delta(
+        date.today() - timedelta(days=TIME_DELAY),
+        date.today() - timedelta(days=TIME_DELAY) + timedelta(days=helpers.DAYLOAD),
+        timedelta(days=1)
+    )]
+    start_date, end_date = dates[0], dates[-1]
 
+    extract_share_data(start_date, end_date)
+
+
+def extract_share_data(start_date='2018-04-01', end_date=(date.today() - timedelta(3)).strftime('%Y-%m-%d')):
     start_date_timestump = parse_date_to_timestump(start_date)
     end_date_timestump = parse_date_to_timestump(end_date)
-    daily_data = get_data_from_response(COMPANY_URN, start_date_timestump, end_date_timestump)
 
-    follower_data = get_data_from_response1(COMPANY_URN, start_date_timestump, end_date_timestump)
+    share_data = get_share_statistic_from_response(COMPANY_URN, start_date_timestump, end_date_timestump)
+    follower_data = get_follower_statistic_from_response(COMPANY_URN, start_date_timestump, end_date_timestump)
 
-    print('DATA COLUMNS --- {}'.format(len(daily_data)))
+    print('DATA COLUMNS --- {}'.format(len(share_data)))
 
-    with open(config.DATA_PATH, mode='w', encoding='utf8') as raw_csv:
+    with open(config.SHARE_DATA_PATH, mode='w', encoding='utf8') as raw_csv:
+
         writer = helpers.prepare_header_for_clear_csv(raw_csv, helpers.CSV_COLUMNS1)
-
-        for item, follow in zip(daily_data, follower_data):
+        for item, follow in zip(share_data, follower_data):
             row = {}
             row.update({
                 'DATE': parse_timestump_to_date(item['timeRange']['start']),
@@ -84,22 +84,33 @@ def extract_data(start_date='2018-04-01', end_date=(date.today() - timedelta(1))
         print('*' * 200)
 
 
+def extract_daily_page_statistic(**kwargs):
+    dates = [s.strftime('%Y-%m-%d') for s in per_delta(
+        date.today() - timedelta(days=TIME_DELAY),
+        date.today() - timedelta(days=TIME_DELAY) + timedelta(days=helpers.DAYLOAD),
+        timedelta(days=1)
+    )]
+    start_date, end_date = dates[0], dates[-1]
+
+    extract_page_statistics(start_date, end_date)
+
+
 def extract_page_statistics(start_date='2018-04-01', end_date=(date.today() - timedelta(1)).strftime('%Y-%m-%d')):  # TODO: Change it to get chunks
 
     start_date_timestump = parse_date_to_timestump(start_date)
     end_date_timestump = parse_date_to_timestump(end_date)
-    daily_data = get_data_from_response2(COMPANY_URN, start_date_timestump, end_date_timestump)
+    daily_data = get_page_statistic_data_from_response(COMPANY_URN, start_date_timestump, end_date_timestump)
 
     print('DATA COLUMNS --- {}'.format(len(daily_data)))
 
-    with open(config.DATA_PATH2, mode='w', encoding='utf8') as raw_csv:
+    with open(config.PAGE_DATA_PATH, mode='w', encoding='utf8') as raw_csv:
         writer = helpers.prepare_header_for_clear_csv(raw_csv, helpers.CSV_COLUMNS2)
 
         for item in daily_data:
             row = {}
             row.update({
                 'DATE': parse_timestump_to_date(item['timeRange']['start']),
-                'mobile_Custom_Button_Click_Counts': item['totalPageStatistics']['clicks']['mobileCustomButtonClickCounts'][0]['clicks'],
+                'mobile_Custom_Button_Click_Counts': item['totalPageStatistics']['clicks']['mobileCustomButtonClickCounts'][0]['clicks'] if item['totalPageStatistics']['clicks']['mobileCustomButtonClickCounts'] else 0,
                 'careers_Page_Banner_Promo_Clicks': item['totalPageStatistics']['clicks']['careersPageClicks']['careersPageBannerPromoClicks'],
                 'careers_Page_Employees_Clicks': item['totalPageStatistics']['clicks']['careersPageClicks']['careersPageEmployeesClicks'],
                 'careers_Page_Promo_Links_Clicks': item['totalPageStatistics']['clicks']['careersPageClicks']['careersPagePromoLinksClicks'],
@@ -107,7 +118,7 @@ def extract_page_statistics(start_date='2018-04-01', end_date=(date.today() - ti
                 'mobile_Careers_Page_Employees_Clicks': item['totalPageStatistics']['clicks']['mobileCareersPageClicks']['careersPageEmployeesClicks'],
                 'mobile_Careers_Page_Promo_Links_Clicks': item['totalPageStatistics']['clicks']['mobileCareersPageClicks']['careersPagePromoLinksClicks'],
                 'mobile_Careers_Page_Jobs_Clicks': item['totalPageStatistics']['clicks']['mobileCareersPageClicks']['careersPageJobsClicks'],
-                'desktop_Custom_Button_Click_Counts': item['totalPageStatistics']['clicks']['desktopCustomButtonClickCounts'][0]['clicks'],
+                'desktop_Custom_Button_Click_Counts': item['totalPageStatistics']['clicks']['desktopCustomButtonClickCounts'][0]['clicks'] if item['totalPageStatistics']['clicks']['desktopCustomButtonClickCounts'] else 0,
 
                 'mobile_Jobs_Page_Views': item['totalPageStatistics']['views']['mobileJobsPageViews']['pageViews'],
                 'unique_Mobile_Jobs_Page_Views': item['totalPageStatistics']['views']['mobileJobsPageViews']['uniquePageViews'],
@@ -164,8 +175,7 @@ def extract_page_statistics(start_date='2018-04-01', end_date=(date.today() - ti
         print('*' * 200)
 
 
-
-def get_data_from_response(campaign, start_date_timestump, end_date_timestump):
+def get_share_statistic_from_response(campaign, start_date_timestump, end_date_timestump):
     api = prepare_api()
     uri_params = [
         {'q': 'organizationalEntity'},
@@ -179,7 +189,7 @@ def get_data_from_response(campaign, start_date_timestump, end_date_timestump):
     return data
 
 
-def get_data_from_response1(campaign, start_date_timestump, end_date_timestump):
+def get_follower_statistic_from_response(campaign, start_date_timestump, end_date_timestump):
     api = prepare_api()
     uri_params = [
         {'q': 'organizationalEntity'},
@@ -193,7 +203,7 @@ def get_data_from_response1(campaign, start_date_timestump, end_date_timestump):
     return data
 
 
-def get_data_from_response2(campaign, start_date_timestump, end_date_timestump):
+def get_page_statistic_data_from_response(campaign, start_date_timestump, end_date_timestump):
     api = prepare_api()
     uri_params = [
         {'q': 'organization'},
@@ -209,6 +219,12 @@ def get_data_from_response2(campaign, start_date_timestump, end_date_timestump):
 
 if __name__ == '__main__':
     # extract_data()
-    extract_page_statistics()
+    # extract_page_statistics()
     # extract_data(start_date='2017-01-04', end_date='2019-04-01')
     # extract_daily()
+
+    # extract_daily_share_statistic()
+    # extract_share_data(start_date='2018-05-01', end_date='2019-05-14')
+    # extract_daily_page_statistic()
+    extract_page_statistics(start_date='2019-05-11', end_date='2019-05-12')
+
